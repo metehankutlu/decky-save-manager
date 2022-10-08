@@ -2,6 +2,7 @@ import {
   ButtonItem,
   definePlugin,
   DialogButton,
+  Field,
   Menu,
   MenuItem,
   PanelSection,
@@ -11,7 +12,7 @@ import {
   showContextMenu,
   staticClasses,
 } from "decky-frontend-lib";
-import { VFC } from "react";
+import { useEffect, useState, VFC } from "react";
 import { FaShip } from "react-icons/fa";
 
 import logo from "../assets/logo.png";
@@ -21,7 +22,26 @@ import logo from "../assets/logo.png";
 //   right: number;
 // }
 
-const Content: VFC<{ serverAPI: ServerAPI }> = ({}) => {
+const Content: VFC<{ serverAPI: ServerAPI }> = ({serverAPI}) => {
+
+  async function getData() {
+    const result =  await serverAPI.callPluginMethod('getData', {});
+    return result;
+  }
+  const [data, setData] = useState({});
+  const [gameList, setGameList] = useState({});
+
+  useEffect(() => {
+    setData(getData());
+    let _gameList: any[] = [];
+    for(let game in data){
+      _gameList.push(<Field>
+        {data[game]['name']}
+      </Field>)
+    }
+    setGameList(_gameList);
+  }, []);
+
   // const [result, setResult] = useState<number | undefined>();
 
   // const onClick = async () => {
@@ -40,24 +60,10 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({}) => {
   return (
     <PanelSection title="Panel Section">
       <PanelSectionRow>
-        <ButtonItem
-          layout="below"
-          onClick={(e) =>
-            showContextMenu(
-              <Menu label="Menu" cancelText="CAAAANCEL" onCancel={() => {}}>
-                <MenuItem onSelected={() => {}}>Item #1</MenuItem>
-                <MenuItem onSelected={() => {}}>Item #2</MenuItem>
-                <MenuItem onSelected={() => {}}>Item #3</MenuItem>
-              </Menu>,
-              e.currentTarget ?? window
-            )
-          }
-        >
-          Server says yolo
-        </ButtonItem>
+        {gameList}
       </PanelSectionRow>
 
-      <PanelSectionRow>
+      {/* <PanelSectionRow>
         <div style={{ display: "flex", justifyContent: "center" }}>
           <img src={logo} />
         </div>
@@ -73,7 +79,7 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({}) => {
         >
           Router
         </ButtonItem>
-      </PanelSectionRow>
+      </PanelSectionRow> */}
     </PanelSection>
   );
 };
