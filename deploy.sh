@@ -2,28 +2,20 @@
 
 dir="/home/deck/homebrew/plugins/decky-save-manager"
 
-if [[ ! -d $dir ]]; then
-    mkdir $dir
-else
-    echo "directory exists"
-fi
+ssh deck 'rm -r $dir'
 
-if [ "$(ls -A $dir/*)" ]; then
-    rm -r $dir/*
-    echo "deleted the contents of the directory"
-else
-    echo "directory is already empty"
-fi
+ssh deck 'mkdir $dir'
+echo 'created the plugin folder'
 
-cp -r dist/ $dir/dist/
+scp -r dist deck:$dir/dist
 echo "copied the dist folder"
-cp main.py $dir/main.py
+scp main.py deck:$dir/main.py
 echo "copied the main.py file"
-cp game_list.py $dir/game_list.py
+scp game_list.py deck:$dir/game_list.py
 echo "copied the game_list.py file"
-cp plugin.json $dir/plugin.json
+scp plugin.json deck:$dir/plugin.json
 echo "copied the plugin.json file"
-cp package.json $dir/package.json
+scp package.json deck:$dir/package.json
 echo "copied the package.json file"
-cp README.md $dir/README.md
+scp README.md deck:$dir/README.md
 echo "copied the README.md file"
