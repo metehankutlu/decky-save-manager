@@ -1,47 +1,36 @@
 import {
-  ButtonItem,
+  // ButtonItem,
   definePlugin,
   DialogButton,
   Field,
-  Menu,
-  MenuItem,
+  // Menu,
+  // MenuItem,
   PanelSection,
   PanelSectionRow,
   Router,
   ServerAPI,
-  showContextMenu,
+  // showContextMenu,
   staticClasses,
 } from "decky-frontend-lib";
 import { useEffect, useState, VFC } from "react";
 import { FaShip } from "react-icons/fa";
 
-import logo from "../assets/logo.png";
+// import logo from "../assets/logo.png";
 
 // interface AddMethodArgs {
 //   left: number;
 //   right: number;
 // }
 
-const Content: VFC<{ serverAPI: ServerAPI }> = ({serverAPI}) => {
+const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
 
-  async function getData() {
-    const result =  await serverAPI.callPluginMethod('getData', {});
-    return result;
-  }
   const [data, setData] = useState({});
-  const [gameList, setGameList] = useState({});
 
   useEffect(() => {
-    setData(getData());
-    let _gameList: any[] = [];
-    for(let game in data){
-      _gameList.push(<Field>
-        {data[game]['name']}
-      </Field>)
-    }
-    setGameList(_gameList);
+    serverAPI.callPluginMethod('get_data', {}).then((result) => {
+      setData(result.result);
+    });
   }, []);
-
   // const [result, setResult] = useState<number | undefined>();
 
   // const onClick = async () => {
@@ -60,7 +49,16 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({serverAPI}) => {
   return (
     <PanelSection title="Panel Section">
       <PanelSectionRow>
-        {gameList}
+        <Field>
+          Game List
+        </Field>
+        {
+          data ? Object.keys(data).map((key) => {
+            <Field>
+              {data[key]}
+            </Field>
+          }) : "No data"
+        }
       </PanelSectionRow>
 
       {/* <PanelSectionRow>

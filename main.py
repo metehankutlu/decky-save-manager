@@ -26,7 +26,7 @@ def write_db(db):
 
 class Plugin:
     async def get_data(self):
-        return read_db()
+        return {"123": {"name": "asd"}}
             
     async def check_save_location(self, app_id: str):
         game = read_db()[app_id]
