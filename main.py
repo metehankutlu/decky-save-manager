@@ -2,8 +2,10 @@ import logging
 import os
 import json
 import shutil
+import sys
 from uuid import uuid4
 
+sys.path.append(os.path.dirname(__file__))
 from game_list import games
 
 logging.basicConfig(filename='/tmp/template.log',
@@ -13,8 +15,8 @@ logging.basicConfig(filename='/tmp/template.log',
 logger=logging.getLogger()
 logger.setLevel(logging.INFO) # can be changed to logging.DEBUG for debugging issues
 
-ROOT_FOLDER = '~/.save-manager'
-DB_PATH = f'{ROOT_FOLDER}/db.json'
+ROOT_FOLDER = 'decky-save-manager'
+DB_PATH = os.path.join(ROOT_FOLDER, 'db.json')
 
 def read_db():
     with open(DB_PATH, 'r') as db_file:
@@ -26,7 +28,7 @@ def write_db(db):
 
 class Plugin:
     async def get_data(self):
-        return {"123": {"name": "asd"}}
+        return read_db()
             
     async def check_save_location(self, app_id: str):
         game = read_db()[app_id]
