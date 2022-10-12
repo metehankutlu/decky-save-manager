@@ -8,8 +8,8 @@ from uuid import uuid4
 sys.path.append(os.path.dirname(__file__))
 from game_list import games
 
-logging.basicConfig(filename='/tmp/template.log',
-                    format='[Template] %(asctime)s %(levelname)s %(message)s',
+logging.basicConfig(filename='/tmp/decky-save-manager.log',
+                    format='[Decky Save Manager] %(asctime)s %(levelname)s %(message)s',
                     filemode='w+',
                     force=True)
 logger=logging.getLogger()
@@ -33,10 +33,7 @@ class Plugin:
     async def check_save_location(self, app_id: str):
         game = read_db()[app_id]
         path = os.path.join(game['save_location'], game['save_name'])
-        if os.path.isfile(path) and os.access(path, os.R_OK):
-            return {"result": 'true'}
-        else:
-            return {"result": 'false'}
+        return os.path.isfile(path) and os.access(path, os.R_OK)
 
     async def create_profile(self, app_id: str, name: str, save_location: str = None):
         db = read_db()
@@ -98,7 +95,7 @@ class Plugin:
         os.makedirs(folder_path)
 
         src_file = os.path.join(game['save_location'], game['save_name'])
-        dst_file = os.path.join(folder_path, game['save_name'])
+        dst_file = os.path.join(folder_path, name)
         shutil.copyfile(src_file, dst_file)
 
         write_db(db)
@@ -113,7 +110,7 @@ class Plugin:
 
         folder_path = os.path.join(ROOT_FOLDER, app_id, profile_id, savestate['id'])
 
-        src_file = os.path.join(folder_path, game['save_name'])
+        src_file = os.path.join(folder_path, savestate["name"])
         dst_file = os.path.join(game['save_location'], game['save_name'])
         shutil.copyfile(src_file, dst_file)
 
