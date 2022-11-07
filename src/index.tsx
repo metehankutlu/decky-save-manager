@@ -10,13 +10,15 @@ import {
   SidebarNavigation
 } from "decky-frontend-lib";
 import { useEffect, VFC } from "react";
-import { SharedStateProvider, useSharedState } from "./state";
-import { selectGame, selectProfile } from "./util";
+import { GlobalStateProvider, useGlobalState } from "./state";
+import { selectGame, selectProfile, isEmpty, keys } from "./util";
+import ProfilesPage from "./components/profiles";
+import SavestatesPage from "./components/savestates";
 import { FaShip } from "react-icons/fa";
 
 const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
 
-  const [state, setState] = useSharedState();
+  const { state, setState } = useGlobalState();
 
   useEffect(() => {
     serverAPI.callPluginMethod('get_data', {}).then((result) => {
@@ -33,10 +35,6 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
     });
   }, []);
 
-  let isEmpty = (obj: Object) => {
-    return Object.keys(obj).length == 0
-  }
-
   let loadSavestate = () => {
     console.log(state);
   }
@@ -46,29 +44,29 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
       <PanelSectionRow>
         <DropdownItem
           label="Game"
-          rgOptions={!isEmpty(state.gameList) ? Object.keys(state.gameList).map(key => ({
+          rgOptions={!isEmpty(state.gameList) ? keys(state.gameList).map(key => ({
             data: key,
-            label: state.gameList[key]["name"]
+            label: state.gameList ? state.gameList[key]["name"] : ""
           })):[]}
           selectedOption={state.selectedGame}
-          onChange={(e) => selectGame(e.data)} />
+          onChange={(e) => selectGame(e.data, state, setState)} />
       </PanelSectionRow>
       <PanelSectionRow>
         <DropdownItem
           label="Profile"
-          rgOptions={!isEmpty(state.profileList) ? Object.keys(state.profileList).map(key => ({
+          rgOptions={!isEmpty(state.profileList) ? keys(state.profileList).map(key => ({
             data: key,
-            label: state.profileList[key]["name"]
+            label: state.profileList ? state.profileList[key]["name"] : ""
           })):[]}
           selectedOption={state.selectedProfile}
-          onChange={(e) => selectProfile(e.data)} />
+          onChange={(e) => selectProfile(e.data, state, setState)} />
       </PanelSectionRow>
       <PanelSectionRow>
         <DropdownItem
           label="Savestate"
-          rgOptions={!isEmpty(state.savestateList) ? Object.keys(state.savestateList).map(key => ({
+          rgOptions={!isEmpty(state.savestateList) ? keys(state.savestateList).map(key => ({
             data: key,
-            label: state.savestateList[key]["name"]
+            label: state.savestateList ? state.savestateList[key]["name"] : ""
           })):[]}
           selectedOption={state.selectedSavestate}
           onChange={(e) => setState({...state, selectedSavestate: e.data})} />
@@ -87,22 +85,6 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
         </ButtonItem>
       </PanelSectionRow>
     </PanelSection>
-  );
-};
-
-const ProfilesPage: VFC = () => {
-  return (
-    <div>
-      Profiles
-    </div>
-  );
-};
-
-const SavestatesPage: VFC = () => {
-  return (
-    <div>
-      Savestates
-    </div>
   );
 };
 
@@ -140,18 +122,18 @@ const SaveManagerRouter: VFC = () => {
 export default definePlugin((serverApi: ServerAPI) => {
   serverApi.routerHook.addRoute("/save-manager", () => {
     return (
-      <SharedStateProvider>
+      <GlobalStateProvider>
         <SaveManagerRouter />
-      </SharedStateProvider>
+      </GlobalStateProvider>
     )
   });
 
   return {
     title: <div className={staticClasses.Title}>Example Plugin</div>,
     content: (
-      <SharedStateProvider>
+      <GlobalStateProvider>
         <Content serverAPI={serverApi} />
-      </SharedStateProvider>
+      </GlobalStateProvider>
     ),
     icon: <FaShip />,
     onDismount() {

@@ -101,6 +101,7 @@ class Plugin:
         write_db(db)
 
         return {'success': 'true'}
+        
 
     async def load_savestate(self, app_id: str, profile_id: str, savestate_id: str):
         db = read_db()

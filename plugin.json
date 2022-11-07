@@ -1,5 +1,5 @@
 {
-  "name": "Example Plugin",
+  "name": "Save Manager",
   "author": "John Doe",
   "flags": ["debug", "_root"],
   "publish": {

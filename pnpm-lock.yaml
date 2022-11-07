@@ -10,7 +10,6 @@ specifiers:
   '@types/webpack': ^5.28.0
   decky-frontend-lib: ^3.0.0
   react-icons: ^4.4.0
-  react-tracked: ^1.7.10
   rollup: ^2.77.1
   rollup-plugin-import-assets: ^1.1.1
   shx: ^0.3.4
@@ -20,7 +19,6 @@ specifiers:
 dependencies:
   decky-frontend-lib: 3.0.0
   react-icons: 4.4.0
-  react-tracked: 1.7.10
 
 devDependencies:
   '@rollup/plugin-commonjs': 21.1.0_rollup@2.77.1
@@ -673,10 +671,6 @@ packages:
     engines: {node: '>=8.6'}
     dev: true
 
-  /proxy-compare/2.3.0:
-    resolution: {integrity: sha512-c3L2CcAi7f7pvlD0D7xsF+2CQIW8C3HaYx2Pfgq8eA4HAl3GAH6/dVYsyBbYF/0XJs2ziGLrzmz5fmzPm6A0pQ==}
-    dev: false
-
   /punycode/2.1.1:
     resolution: {integrity: sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==}
     engines: {node: '>=6'}
@@ -695,25 +689,6 @@ packages:
     peerDependenciesMeta:
       react:
         optional: true
-    dev: false
-
-  /react-tracked/1.7.10:
-    resolution: {integrity: sha512-+zOm+Pr+zFrrEOwtLUtHwoxf9Kg7Ur7OMjD9kNFw5JA9lAs+mInXVEOvwpReEoR2FQMS4KUFxLv5VYoR5ADBiQ==}
-    peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '*'
-      react-native: '*'
-      scheduler: '>=0.19.0'
-    peerDependenciesMeta:
-      react:
-        optional: true
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
-    dependencies:
-      proxy-compare: 2.3.0
-      use-context-selector: 1.4.1
     dev: false
 
   /rechoir/0.6.2:
@@ -892,22 +867,6 @@ packages:
   /url-join/4.0.1:
     resolution: {integrity: sha512-jk1+QP6ZJqyOiuEI9AEWQfju/nB2Pw466kbA0LEZljHwKeMgd9WrAEgEGxjPDD2+TNbbb37rTyhEfrCXfuKXnA==}
     dev: true
-
-  /use-context-selector/1.4.1:
-    resolution: {integrity: sha512-Io2ArvcRO+6MWIhkdfMFt+WKQX+Vb++W8DS2l03z/Vw/rz3BclKpM0ynr4LYGyU85Eke+Yx5oIhTY++QR0ZDoA==}
-    peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '*'
-      react-native: '*'
-      scheduler: '>=0.19.0'
-    peerDependenciesMeta:
-      react:
-        optional: true
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
-    dev: false
 
   /watchpack/2.4.0:
     resolution: {integrity: sha512-Lcvm7MGST/4fup+ifyKi2hjyIAwcdI4HRgtvTpIUxBRhB+RFtUh8XtDOxUfctVCnhVi+QQj49i91OyvzkJl6cg==}
