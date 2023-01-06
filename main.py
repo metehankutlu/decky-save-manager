@@ -1,41 +1,50 @@
+import json
 import logging
 import os
-import json
 import shutil
 import sys
 from uuid import uuid4
 
-sys.path.append(os.path.dirname(__file__))
 from game_list import games
 
+sys.path.append(os.path.dirname(__file__))
+
+
+log_format = '[Decky Save Manager] %(asctime)s %(levelname)s %(message)s'
 logging.basicConfig(filename='/tmp/decky-save-manager.log',
-                    format='[Decky Save Manager] %(asctime)s %(levelname)s %(message)s',
+                    format=log_format,
                     filemode='w+',
                     force=True)
-logger=logging.getLogger()
-logger.setLevel(logging.INFO) # can be changed to logging.DEBUG for debugging issues
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 ROOT_FOLDER = 'decky-save-manager'
 DB_PATH = os.path.join(ROOT_FOLDER, 'db.json')
+
 
 def read_db():
     with open(DB_PATH, 'r') as db_file:
         return json.load(db_file)
 
+
 def write_db(db):
     with open(DB_PATH, 'w') as db_file:
         json.dump(db, db_file)
 
+
 class Plugin:
     async def get_data(self):
         return read_db()
-            
+
     async def check_save_location(self, app_id: str):
         game = read_db()[app_id]
         path = os.path.join(game['save_location'], game['save_name'])
         return os.path.isfile(path) and os.access(path, os.R_OK)
 
-    async def create_profile(self, app_id: str, name: str, save_location: str = None):
+    async def create_profile(self,
+                             app_id: str,
+                             name: str,
+                             save_location: str = None):
         db = read_db()
 
         if save_location is not None:
@@ -69,7 +78,6 @@ class Plugin:
 
         return {'success': 'true'}
 
-    
     async def rename_profile(self, app_id: str, profile_id: str, name: str):
         db = read_db()
 
@@ -89,9 +97,11 @@ class Plugin:
             'name': name
         }
 
-        db[app_id]['profiles'][profile_id]['savestates'][savestate['id']] = savestate
-        
-        folder_path = os.path.join(ROOT_FOLDER, app_id, profile_id, savestate['id'])
+        profile = db[app_id]['profiles'][profile_id]
+        profile['savestates'][savestate['id']] = savestate
+
+        folder_path = os.path.join(
+            ROOT_FOLDER, app_id, profile_id, savestate['id'])
         os.makedirs(folder_path)
 
         src_file = os.path.join(game['save_location'], game['save_name'])
@@ -101,15 +111,19 @@ class Plugin:
         write_db(db)
 
         return {'success': 'true'}
-        
 
-    async def load_savestate(self, app_id: str, profile_id: str, savestate_id: str):
+    async def load_savestate(self,
+                             app_id: str,
+                             profile_id: str,
+                             savestate_id: str):
         db = read_db()
 
         game = db[app_id]
-        savestate = db[app_id]['profiles'][profile_id]['savestates'][savestate_id]
+        profile = db[app_id]['profiles'][profile_id]
+        savestate = profile['savestates'][savestate_id]
 
-        folder_path = os.path.join(ROOT_FOLDER, app_id, profile_id, savestate['id'])
+        folder_path = os.path.join(
+            ROOT_FOLDER, app_id, profile_id, savestate['id'])
 
         src_file = os.path.join(folder_path, savestate["name"])
         dst_file = os.path.join(game['save_location'], game['save_name'])
@@ -117,7 +131,10 @@ class Plugin:
 
         return {'success': 'true'}
 
-    async def delete_savestate(self, app_id: str, profile_id: str, savestate_id: str):
+    async def delete_savestate(self,
+                               app_id: str,
+                               profile_id: str,
+                               savestate_id: str):
         db = read_db()
 
         del db[app_id]['profiles'][profile_id]['savestates'][savestate_id]
@@ -126,11 +143,15 @@ class Plugin:
 
         return {'success': 'true'}
 
-    
-    async def rename_savestate(self, app_id: str, profile_id: str, savestate_id: str, name: str):
+    async def rename_savestate(self,
+                               app_id: str,
+                               profile_id: str,
+                               savestate_id: str,
+                               name: str):
         db = read_db()
 
-        db[app_id]['profiles'][profile_id]['savestates'][savestate_id]['name'] = name
+        profile = db[app_id]['profiles'][profile_id]
+        profile['savestates'][savestate_id]['name'] = name
 
         write_db(db)
 
@@ -143,9 +164,10 @@ class Plugin:
         if os.path.isfile(DB_PATH) and os.access(DB_PATH, os.R_OK):
             logger.info('File exists and is readable')
         else:
-            logger.info('Either file is missing or is not readable, creating file...')
+            logger.info(
+                'Either file is missing or is not readable, creating file...')
             write_db(games)
-        
+
         for game_id in games.keys():
             path = os.path.join(ROOT_FOLDER, game_id)
             if not os.path.exists(path):
