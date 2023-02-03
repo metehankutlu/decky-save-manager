@@ -5,10 +5,9 @@ import shutil
 import sys
 from uuid import uuid4
 
-from game_list import games
-
 sys.path.append(os.path.dirname(__file__))
 
+from game_list import games # noqa
 
 log_format = '[Decky Save Manager] %(asctime)s %(levelname)s %(message)s'
 logging.basicConfig(filename='/tmp/decky-save-manager.log',
