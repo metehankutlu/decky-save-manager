@@ -9,14 +9,7 @@ import useLocalStorageState from "../state";
 import { isEmpty, keys, selectGame } from "../util";
 
 const ProfilesPage: VFC = () => {
-  let [state, setState] = useLocalStorageState('state', {
-    gameList: {},
-    selectedGame: "",
-    profileList: {},
-    selectedProfile: "",
-    savestateList: {},
-    selectedSavestate: ""
-  });
+  let [state, setState] = useLocalStorageState();
   
   let logState = () => {
     console.log("Profiles Page", state);
@@ -54,4 +47,4 @@ const ProfilesPage: VFC = () => {
   );
 };
 
-export default ProfilesPage;
+export { ProfilesPage };

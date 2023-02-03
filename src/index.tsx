@@ -12,15 +12,14 @@ import {
 import { useEffect, VFC } from "react";
 import useLocalStorageState from "./state";
 import { selectGame, selectProfile, isEmpty, keys } from "./util";
-import ProfilesPage from "./components/profiles";
-import SavestatesPage from "./components/savestates";
+import { ProfilesPage, SavestatesPage } from "./pages";
 import { FaShip } from "react-icons/fa";
 import * as backend from "./backend";
 
 const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
   backend.setServer(serverAPI);
 
-  const [state, setState] = useLocalStorageState('state');
+  const [state, setState] = useLocalStorageState();
 
   let processState = (gameList: any) => {
     setState({...state,

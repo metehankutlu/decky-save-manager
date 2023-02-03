@@ -9,9 +9,9 @@ const defaultState = {
   selectedSavestate: ""
 }
 
-export default function useLocalStorageState(key: string, defaultValue = defaultState) {
+export default function useLocalStorageState(defaultValue = defaultState) {
   const [state, setState] = useState(() => {
-    const valueInLocalStorage = localStorage.getItem(key);
+    const valueInLocalStorage = localStorage.getItem('state');
     if (valueInLocalStorage) {
       try
       {
@@ -28,8 +28,8 @@ export default function useLocalStorageState(key: string, defaultValue = default
   });
 
   useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(state));
-  }, [key, state]);
+    localStorage.setItem('state', JSON.stringify(state));
+  }, [state]);
 
   return [state, setState];
 }

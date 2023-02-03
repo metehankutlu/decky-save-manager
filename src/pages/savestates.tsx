@@ -8,4 +8,4 @@ const SavestatesPage: VFC = () => {
     );
 };
 
-export default SavestatesPage;
+export { SavestatesPage };
