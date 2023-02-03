@@ -1,6 +1,4 @@
-import { GlobalStateInterface } from "./state";
-
-const selectGame = (game_id: string, state: Partial<GlobalStateInterface>, setState: React.Dispatch<React.SetStateAction<Partial<GlobalStateInterface>>>): void => {
+const selectGame = (game_id: string, state: any, setState: any): void => {
   setState({...state,
     selectedGame: game_id,
     selectedProfile: "",
@@ -10,7 +8,7 @@ const selectGame = (game_id: string, state: Partial<GlobalStateInterface>, setSt
   });
 }
 
-const selectProfile = (profile_id: string, state: Partial<GlobalStateInterface>, setState: React.Dispatch<React.SetStateAction<Partial<GlobalStateInterface>>>) => {
+const selectProfile = (profile_id: string, state: any, setState: any) => {
   setState({...state,
     selectedProfile: profile_id,
     selectedSavestate: "",

@@ -10,29 +10,26 @@ import {
   SidebarNavigation
 } from "decky-frontend-lib";
 import { useEffect, VFC } from "react";
-import { GlobalStateProvider, useGlobalState } from "./state";
+import useLocalStorageState from "./state";
 import { selectGame, selectProfile, isEmpty, keys } from "./util";
 import ProfilesPage from "./components/profiles";
 import SavestatesPage from "./components/savestates";
 import { FaShip } from "react-icons/fa";
+import * as backend from "./backend";
 
 const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
+  backend.setServer(serverAPI);
 
-  const { state, setState } = useGlobalState();
+  const [state, setState] = useLocalStorageState('state');
+
+  let processState = (gameList: any) => {
+    setState({...state,
+      gameList: gameList
+    });
+  }
 
   useEffect(() => {
-    serverAPI.callPluginMethod('get_data', {}).then((result) => {
-      if(result.success) {
-        let gameList = result.result;
-        let runningApp = Router.MainRunningApp;
-        let runningAppIsAvailable = runningApp && Object.keys(gameList).includes(runningApp.appid.toString());
-        setState({...state,
-          gameList: gameList, 
-          selectedGame: runningApp && runningAppIsAvailable ? runningApp.appid.toString() : "",
-          profileList: runningApp && runningAppIsAvailable ? gameList[runningApp.appid.toString()]["profiles"] : {},
-        });
-      }
-    });
+    backend.resolvePromise(backend.getData(), processState);
   }, []);
 
   let loadSavestate = () => {
@@ -96,7 +93,9 @@ const SaveManagerRouter: VFC = () => {
       pages={[
         {
           title: "Profiles",
-          content: <ProfilesPage />,
+          content: (
+              <ProfilesPage />
+          ),
           route: "/save-manager/profiles",
         },
         {
@@ -122,18 +121,14 @@ const SaveManagerRouter: VFC = () => {
 export default definePlugin((serverApi: ServerAPI) => {
   serverApi.routerHook.addRoute("/save-manager", () => {
     return (
-      <GlobalStateProvider>
         <SaveManagerRouter />
-      </GlobalStateProvider>
     )
   });
 
   return {
     title: <div className={staticClasses.Title}>Example Plugin</div>,
     content: (
-      <GlobalStateProvider>
         <Content serverAPI={serverApi} />
-      </GlobalStateProvider>
     ),
     icon: <FaShip />,
     onDismount() {

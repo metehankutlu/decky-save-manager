@@ -1,17 +1,36 @@
 import { 
+  ButtonItem,
   DropdownItem,
   Field,
   PanelSection,
   PanelSectionRow } from "decky-frontend-lib";
-import { VFC } from "react";
-import { useGlobalState } from "../state";
+import { useEffect, VFC } from "react";
+import useLocalStorageState from "../state";
 import { isEmpty, keys, selectGame } from "../util";
 
 const ProfilesPage: VFC = () => {
-  let { state, setState } = useGlobalState();
-  console.log("Profiles Page", state);
+  let [state, setState] = useLocalStorageState('state', {
+    gameList: {},
+    selectedGame: "",
+    profileList: {},
+    selectedProfile: "",
+    savestateList: {},
+    selectedSavestate: ""
+  });
+  
+  let logState = () => {
+    console.log("Profiles Page", state);
+  }
+  useEffect(() => {
+    logState();
+  }, [])
   return (
     <PanelSection>
+      <PanelSectionRow>
+        <ButtonItem onClick={logState}>
+          Log State
+        </ButtonItem>
+      </PanelSectionRow>
       <PanelSectionRow>
         <DropdownItem
             label="Game"

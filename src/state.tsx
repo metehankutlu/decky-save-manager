@@ -1,49 +1,35 @@
-import React, { createContext, useState, useContext, Dispatch, SetStateAction } from "react";
+import { useState, useEffect } from "react";
 
-export interface GlobalStateInterface {
-  gameList: Object;
-  selectedGame: string;
-  profileList: Object;
-  selectedProfile: string;
-  savestateList: Object;
-  selectedSavestate: string;
+const defaultState = {
+  gameList: {},
+  selectedGame: "",
+  profileList: {},
+  selectedProfile: "",
+  savestateList: {},
+  selectedSavestate: ""
 }
 
-const initialState = {
-    gameList: {},
-    selectedGame: "",
-    profileList: {},
-    selectedProfile: "",
-    savestateList: {},
-    selectedSavestate: ""
-};
+export default function useLocalStorageState(key: string, defaultValue = defaultState) {
+  const [state, setState] = useState(() => {
+    const valueInLocalStorage = localStorage.getItem(key);
+    if (valueInLocalStorage) {
+      try
+      {
+        let value = JSON.parse(valueInLocalStorage);
+        return value;
+      }
+      catch(ex)
+      {
+        return null;
+      }
+    }
 
-const GlobalStateContext = createContext({
-  state: {} as Partial<GlobalStateInterface>,
-  setState: {} as Dispatch<SetStateAction<Partial<GlobalStateInterface>>>,
-});
+    return defaultValue;
+  });
 
-const GlobalStateProvider = ({
-  children,
-  value = initialState as GlobalStateInterface,
-}: {
-  children: React.ReactNode;
-  value?: Partial<GlobalStateInterface>;
-}) => {
-  const [state, setState] = useState(value);
-  return (
-    <GlobalStateContext.Provider value={{ state, setState }}>
-      {children}
-    </GlobalStateContext.Provider>
-  );
-};
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(state));
+  }, [key, state]);
 
-const useGlobalState = () => {
-  const context = useContext(GlobalStateContext);
-  if (!context) {
-    throw new Error("useGlobalState must be used within a GlobalStateContext");
-  }
-  return context;
-};
-
-export { GlobalStateProvider, useGlobalState };
+  return [state, setState];
+}
