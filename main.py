@@ -62,7 +62,7 @@ class Plugin:
 
         write_db(db)
 
-        return {'success': 'true'}
+        return profile
 
     async def delete_profile(self, app_id: str, profile_id: str):
         db = read_db()
@@ -75,8 +75,6 @@ class Plugin:
 
         write_db(db)
 
-        return {'success': 'true'}
-
     async def rename_profile(self, app_id: str, profile_id: str, name: str):
         db = read_db()
 
@@ -84,9 +82,7 @@ class Plugin:
 
         write_db(db)
 
-        return {'success': 'true'}
-
-    async def import_savestate(self, app_id: str, profile_id: str, name: str):
+    async def create_savestate(self, app_id: str, profile_id: str, name: str):
         db = read_db()
 
         game = db[app_id]
@@ -109,8 +105,6 @@ class Plugin:
 
         write_db(db)
 
-        return {'success': 'true'}
-
     async def load_savestate(self,
                              app_id: str,
                              profile_id: str,
@@ -128,8 +122,6 @@ class Plugin:
         dst_file = os.path.join(game['save_location'], game['save_name'])
         shutil.copyfile(src_file, dst_file)
 
-        return {'success': 'true'}
-
     async def delete_savestate(self,
                                app_id: str,
                                profile_id: str,
@@ -139,8 +131,6 @@ class Plugin:
         del db[app_id]['profiles'][profile_id]['savestates'][savestate_id]
 
         write_db(db)
-
-        return {'success': 'true'}
 
     async def rename_savestate(self,
                                app_id: str,
@@ -154,8 +144,6 @@ class Plugin:
 
         write_db(db)
 
-        return {'success': 'true'}
-
     async def _main(self):
         if not os.path.exists(ROOT_FOLDER):
             os.makedirs(ROOT_FOLDER)
@@ -165,6 +153,8 @@ class Plugin:
         else:
             logger.info(
                 'Either file is missing or is not readable, creating file...')
+            for game in games.keys():
+                games[game]["profiles"] = {}
             write_db(games)
 
         for game_id in games.keys():

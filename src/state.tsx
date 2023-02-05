@@ -33,3 +33,5 @@ export default function useLocalStorageState(defaultValue = defaultState) {
 
   return [state, setState];
 }
+
+export { defaultState };

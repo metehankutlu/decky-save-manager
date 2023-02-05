@@ -84,7 +84,7 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
   );
 };
 
-const SaveManagerRouter: VFC = () => {
+const SaveManagerRouter: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
   return (
     <SidebarNavigation
       title="Save Manager"
@@ -93,13 +93,13 @@ const SaveManagerRouter: VFC = () => {
         {
           title: "Profiles",
           content: (
-              <ProfilesPage />
+              <ProfilesPage serverAPI={serverAPI} />
           ),
           route: "/save-manager/profiles",
         },
         {
           title: "Savestates",
-          content: <SavestatesPage />,
+          content: <SavestatesPage serverAPI={serverAPI} />,
           route: "/save-manager/savestates",
         },
         // {
@@ -120,7 +120,7 @@ const SaveManagerRouter: VFC = () => {
 export default definePlugin((serverApi: ServerAPI) => {
   serverApi.routerHook.addRoute("/save-manager", () => {
     return (
-        <SaveManagerRouter />
+        <SaveManagerRouter serverAPI={serverApi} />
     )
   });
 
