@@ -5,8 +5,8 @@ var server: ServerAPI | undefined = undefined;
 export function resolvePromise(promise: Promise<any>, callback: any) {
     (async function () {
         let data = await promise;
+        console.log(data);
         if (data.success) {
-            console.log(data);
             callback(data.result);
         }
         else 
@@ -24,34 +24,41 @@ export function setServer(s: ServerAPI) {
     server = s;
 }
 
-export function getData(): Promise<any> {
-    return server!.callPluginMethod("get_data", {});
+export function createSavestate(game_id: string, profile_id: string, savestate_id: string, save_path: string): Promise<any> {
+    return server!.callPluginMethod("create_savestate", {
+        game_id: game_id.toString(), 
+        profile_id: profile_id.toString(), 
+        savestate_id: savestate_id.toString(), 
+        save_path: save_path.toString()
+    });
 }
 
-export function createProfile(app_id: string, name: string): Promise<any> {
-    return server!.callPluginMethod("create_profile", {app_id: app_id, name: name});
+export function loadSavestate(game_id: string, profile_id: string, savestate_id: string, save_path: string): Promise<any> {
+    return server!.callPluginMethod("load_savestate", {
+        game_id: game_id.toString(), 
+        profile_id: profile_id.toString(), 
+        savestate_id: savestate_id.toString(), 
+        save_path: save_path.toString()
+    });
 }
 
-export function deleteProfile(app_id: string, profile_id: string): Promise<any> {
-    return server!.callPluginMethod("delete_profile", {app_id: app_id, profile_id: profile_id});
+export function deleteSavestate(game_id: string, profile_id: string, savestate_id: string): Promise<any> {
+    return server!.callPluginMethod("delete_savestate", {
+        game_id: game_id.toString(), 
+        profile_id: profile_id.toString(), 
+        savestate_id: savestate_id.toString()
+    });
 }
 
-export function renameProfile(app_id: string, profile_id: string, name: string): Promise<any> {
-    return server!.callPluginMethod("rename_profile", {app_id: app_id, profile_id: profile_id, name: name});
+export function deleteProfile(game_id: string, profile_id: string): Promise<any> {
+    return server!.callPluginMethod("delete_profile", {
+        game_id: game_id.toString(), 
+        profile_id: profile_id.toString()
+    });
 }
 
-export function createSavestate(app_id: string, profile_id: string, name: string): Promise<any> {
-    return server!.callPluginMethod("create_savestate", {app_id: app_id, profile_id: profile_id, name: name});
-}
-
-export function deleteSavestate(app_id: string, profile_id: string, savestate_id: string): Promise<any> {
-    return server!.callPluginMethod("delete_savestate", {app_id: app_id, profile_id: profile_id, savestate_id: savestate_id});
-}
-
-export function renameSavestate(app_id: string, profile_id: string, savestate_id: string, name: string): Promise<any> {
-    return server!.callPluginMethod("rename_savestate", {app_id: app_id, profile_id: profile_id, savestate_id: savestate_id, name: name});
-}
-
-export function loadSavestate(app_id: string, profile_id: string, savestate_id: string): Promise<any> {
-    return server!.callPluginMethod("load_savestate", {app_id: app_id, profile_id: profile_id, savestate_id: savestate_id});
+export function deleteGame(game_id: string): Promise<any> {
+    return server!.callPluginMethod("delete_game", {
+        game_id: game_id.toString()
+    });
 }

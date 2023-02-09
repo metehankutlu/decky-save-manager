@@ -1,22 +1,33 @@
 import {
+    ButtonItem,
     ConfirmModal,
     ConfirmModalProps,
     Field, 
     Focusable, 
     PanelSection, 
     PanelSectionRow, 
+    ServerAPI, 
     TextField
 } from "decky-frontend-lib";
 import { useState, VFC } from "react";
+import { openFilePicker } from "../util";
 
 const UpsertModal: VFC<ConfirmModalProps & {
     title: string,
-    onConfirmClick: (text: string) => void,
+    onConfirmClick: (text: string, filePath?: string) => void,
+    filePicker?: string,
+    serverAPI?: ServerAPI,
     textDefault?: string
-}> = ({ title, onConfirmClick, textDefault = '', ...props}) => {
+}> = ({ title, onConfirmClick, filePicker, serverAPI, textDefault = '', ...props}) => {
+
     let [text, setText] = useState(textDefault);
+    let [filePath, setFilePath] = useState(filePicker);
+
     let onClick = () => {
-        onConfirmClick(text);
+        if(filePicker)
+            onConfirmClick(text, filePath);
+        else
+            onConfirmClick(text);
         props.closeModal?.();
     }
     return (
@@ -36,6 +47,25 @@ const UpsertModal: VFC<ConfirmModalProps & {
                         </Focusable>
                     } />
                 </PanelSectionRow>
+                {
+                    filePicker &&
+                    <PanelSectionRow>
+                        <ButtonItem 
+                            label="Save file" 
+                            description={
+                                filePath != undefined && filePath != "/home/deck" ? 
+                                filePath.length < 80 ? filePath : 
+                                filePath.slice(0, 40) + '...' + filePath.slice(-40)
+                                : ''}  
+                            onClick={() => {
+                                openFilePicker(filePicker, undefined, undefined, undefined, serverAPI).then(response => {
+                                    setFilePath(response.realpath);
+                                });
+                        }}>
+                            Select file
+                        </ButtonItem>
+                    </PanelSectionRow>
+                }
             </PanelSection>
         </ConfirmModal>
     )

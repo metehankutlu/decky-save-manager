@@ -10,11 +10,12 @@ import {
   showContextMenu,
   showModal
 } from "decky-frontend-lib";
-import { UpsertModal, DeleteModal } from "../components";
 import { VFC } from "react";
 import { FaEllipsisH } from "react-icons/fa";
+import { v4 as uuidv4 } from "uuid";
+import { UpsertModal, DeleteModal } from "../components";
 import useLocalStorageState from "../state";
-import { isEmpty, keys, selectGame, selectProfile, values } from "../util";
+import { values } from "../util";
 import * as backend from "../backend";
 
 const SavestatesPage: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
@@ -30,12 +31,17 @@ const SavestatesPage: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
     );
   }
 
-  let confirmCreate = (text: string) => {
-    backend.resolvePromise(backend.createSavestate(state.selectedGame, state.selectedProfile, text), (result: any) => {
+  let confirmCreate = (name: string) => {
+    let id = uuidv4();
+    backend.resolvePromise(backend.createSavestate(state.selectedGame, 
+                                                   state.selectedProfile, 
+                                                   id, 
+                                                   state.gameList[state.selectedGame]["filePath"]), () => {
       let _state = JSON.parse(JSON.stringify(state));
-      _state.savestateList[result.id] = result
-      _state.profileList[state.selectedProfile]["savestates"][result.id] = result
-      _state.gameList[state.selectedGame]["profiles"][state.selectedProfile]["savestates"][result.id] = result
+      _state.gameList[state.selectedGame]["profiles"][state.selectedProfile]["savestates"][id] = {
+        id: id,
+        name: name
+      }
       setState(_state);
     });
   }
@@ -52,13 +58,9 @@ const SavestatesPage: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
 
   let confirmEdit = (savestate_id: string) => {
     return function(text: string) {
-      backend.resolvePromise(backend.renameSavestate(state.selectedGame, state.selectedProfile, savestate_id, text), () => {
         let _state = JSON.parse(JSON.stringify(state));
-        _state.savestateList[savestate_id]["name"] = text;
-        _state.profileList[state.selectedProfile]["savestates"][savestate_id]["name"] = text;
         _state.gameList[state.selectedGame]["profiles"][state.selectedProfile]["savestates"][savestate_id]["name"] = text;
         setState(_state);
-      });
     }
   }
 
@@ -66,7 +68,7 @@ const SavestatesPage: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
     showModal(
       <DeleteModal
         title="Delete Savestate"
-        description={`Are you sure you want to delete savestate ${state.savestateList[savestate_id]["name"]}?`}
+        description={`Are you sure you want to delete savestate ${state.gameList[state.selectedGame]["profiles"][state.selectedProfile]["savestates"][savestate_id]["name"]}?`}
         id={savestate_id}
         onConfirmClick={confirmDelete}
       />, window
@@ -74,10 +76,8 @@ const SavestatesPage: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
   }
 
   let confirmDelete = (savestate_id: string) => {
-    backend.resolvePromise(backend.deleteProfile(state.selectedGame, savestate_id), () => {
+    backend.resolvePromise(backend.deleteSavestate(state.selectedGame, state.selectedProfile, savestate_id), () => {
       let _state = JSON.parse(JSON.stringify(state));
-      delete _state.savestateList[savestate_id];
-      delete _state.profileList[state.selectedProfile]["profiles"][savestate_id];
       delete _state.gameList[state.selectedGame]["profiles"][state.selectedProfile]["savestates"][savestate_id];
       if(_state.selectedSavestate == savestate_id) {
         _state.selectedSavestate = "";
@@ -90,22 +90,22 @@ const SavestatesPage: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
       <PanelSectionRow>
         <DropdownItem
             label="Game"
-            rgOptions={!isEmpty(state.gameList) ? keys(state.gameList).map(key => ({
-              data: key,
-              label: state.gameList ? state.gameList[key]["name"] : ""
-            })):[]}
+            rgOptions={values(state.gameList).map((value: any) => ({
+              data: value["id"],
+              label: value["name"]
+            }))}
             selectedOption={state.selectedGame}
-            onChange={(e) => selectGame(e.data, state, setState)} />
+            onChange={(e) => setState({...state, selectedGame: e.data, selectedProfile: "", selectedSavestate: ""})} />
       </PanelSectionRow>
       <PanelSectionRow>
         <DropdownItem
             label="Profile"
-            rgOptions={!isEmpty(state.profileList) ? keys(state.profileList).map(key => ({
-              data: key,
-              label: state.profileList ? state.profileList[key]["name"] : ""
+            rgOptions={state.selectedGame != "" ? values(state.gameList[state.selectedGame]["profiles"]).map((value: any)=> ({
+              data: value["id"],
+              label: value["name"]
             })):[]}
             selectedOption={state.selectedProfile}
-            onChange={(e) => selectProfile(e.data, state, setState)} />
+            onChange={(e) => setState({...state, selectedProfile: e.data, selectedSavestate: ""})} />
       </PanelSectionRow>
       <PanelSectionRow>
         <ButtonItem onClick={showCreateModal}>
@@ -115,26 +115,29 @@ const SavestatesPage: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
       {
         <PanelSectionRow>
           {
-            !isEmpty(state.profileList) ?
-              !isEmpty(state.savestateList) ? 
+            state.selectedGame != "" ?
+              state.selectedProfile != "" ? 
               (
                 <ul style={{ listStyleType: 'none', padding: '1rem' }}>
                   {
-                    values(state.savestateList).map((val: any) => {
+                    values(state.gameList[state.selectedGame]["profiles"][state.selectedProfile]["savestates"]).map((savestate: any) => {
                       return (
                         <li style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', paddingBottom: '10px', width: '100%', justifyContent: 'space-between' }}>
                           <span>
-                            { val["name"] }
+                            { savestate["name"] }
                           </span>
                           <DialogButton
                             style={{ height: '40px', width: '40px', padding: '10px 12px', minWidth: '40px' }}
                             onClick={(e: MouseEvent) =>
                               showContextMenu(
                                 <Menu label="Savestate Actions">
-                                  <MenuItem onSelected={() => {showEditModal(val["id"], val["name"])}}>
+                                  <MenuItem onSelected={() => {setState({...state, selectedSavestate: savestate["id"]})}}>
+                                    Select
+                                  </MenuItem>
+                                  <MenuItem onSelected={() => {showEditModal(savestate["id"], savestate["name"])}}>
                                     Edit
                                   </MenuItem>
-                                  <MenuItem onSelected={() => {showDeleteModal(val["id"])}}>
+                                  <MenuItem onSelected={() => {showDeleteModal(savestate["id"])}}>
                                     Delete
                                   </MenuItem>
                                 </Menu>,

@@ -9,10 +9,10 @@ import {
   ButtonItem,
   SidebarNavigation
 } from "decky-frontend-lib";
-import { useEffect, VFC } from "react";
+import { VFC } from "react";
 import useLocalStorageState from "./state";
-import { selectGame, selectProfile, isEmpty, keys } from "./util";
-import { ProfilesPage, SavestatesPage } from "./pages";
+import { values } from "./util";
+import { GamesPage, ProfilesPage, SavestatesPage } from "./pages";
 import { FaShip } from "react-icons/fa";
 import * as backend from "./backend";
 
@@ -21,18 +21,15 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
 
   const [state, setState] = useLocalStorageState();
 
-  let processState = (gameList: any) => {
-    setState({...state,
-      gameList: gameList
-    });
-  }
-
-  useEffect(() => {
-    backend.resolvePromise(backend.getData(), processState);
-  }, []);
-
   let loadSavestate = () => {
-    console.log(state);
+    if (state.selectedGame != "" && state.selectedProfile != "" && state.selectedSavestate != ""){
+      backend.resolvePromise(backend.loadSavestate(
+        state.selectedGame, 
+        state.selectedProfile, 
+        state.selectedSavestate,
+        state.gameList[state.selectedGame]["filePath"]
+      ), () => {});
+    }
   }
 
   return (
@@ -40,33 +37,43 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
       <PanelSectionRow>
         <DropdownItem
           label="Game"
-          rgOptions={!isEmpty(state.gameList) ? keys(state.gameList).map(key => ({
-            data: key,
-            label: state.gameList ? state.gameList[key]["name"] : ""
-          })):[]}
+          rgOptions={values(state.gameList).map((value: any) => ({
+            data: value["id"],
+            label: value["name"]
+          }))}
           selectedOption={state.selectedGame}
-          onChange={(e) => selectGame(e.data, state, setState)} />
+          onChange={(e) => setState({...state, selectedGame: e.data})} />
       </PanelSectionRow>
       <PanelSectionRow>
         <DropdownItem
           label="Profile"
-          rgOptions={!isEmpty(state.profileList) ? keys(state.profileList).map(key => ({
-            data: key,
-            label: state.profileList ? state.profileList[key]["name"] : ""
-          })):[]}
+          rgOptions={state.selectedGame != "" ?
+            values(state.gameList[state.selectedGame]["profiles"]).map((value: any) => ({
+              data: value["id"],
+              label: value["name"]
+            })):[]}
           selectedOption={state.selectedProfile}
-          onChange={(e) => selectProfile(e.data, state, setState)} />
+          onChange={(e) => setState({...state, selectedProfile: e.data})} />
       </PanelSectionRow>
       <PanelSectionRow>
         <DropdownItem
           label="Savestate"
-          rgOptions={!isEmpty(state.savestateList) ? keys(state.savestateList).map(key => ({
-            data: key,
-            label: state.savestateList ? state.savestateList[key]["name"] : ""
-          })):[]}
+          rgOptions={state.selectedGame != "" && state.selectedProfile != "" ?
+            values(state.gameList[state.selectedGame]["profiles"][state.selectedProfile]["savestates"]).map((value: any) => ({
+              data: value["id"],
+              label: value["name"]
+            })):[]}
           selectedOption={state.selectedSavestate}
           onChange={(e) => setState({...state, selectedSavestate: e.data})} />
       </PanelSectionRow>
+      {/* <PanelSectionRow>
+        <ButtonItem onClick={() => {
+          // setState(defaultState);
+          console.log(state);
+        }}>
+          Clear state
+        </ButtonItem>
+      </PanelSectionRow> */}
       <PanelSectionRow>
         <ButtonItem layout="below" onClick={loadSavestate}>
           Load Savestate
@@ -77,7 +84,7 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
           Router.CloseSideMenus();
           Router.Navigate("/save-manager")
         }}>
-          Manage Profiles & Savestates
+          Manage Savestates
         </ButtonItem>
       </PanelSectionRow>
     </PanelSection>
@@ -91,10 +98,13 @@ const SaveManagerRouter: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
       showTitle
       pages={[
         {
+          title: "Games",
+          content: <GamesPage serverAPI={serverAPI} />,
+          route: "/save-manager/games",
+        },
+        {
           title: "Profiles",
-          content: (
-              <ProfilesPage serverAPI={serverAPI} />
-          ),
+          content: <ProfilesPage serverAPI={serverAPI} />,
           route: "/save-manager/profiles",
         },
         {

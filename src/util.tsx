@@ -1,38 +1,43 @@
-import { defaultState } from "./state";
+import { ModalRoot, ServerAPI, showModal } from "decky-frontend-lib";
+import { FilePickerProps } from "./components";
+import FilePicker from "./components/FilePicker";
 
-const selectGame = (game_id: string, state: any, setState: any): void => {
-  setState({...state,
-    selectedGame: game_id,
-    selectedProfile: "",
-    profileList: state.gameList ? state.gameList[game_id]["profiles"]:{},
-    selectedSavestate: "",
-    savestateList: {}
-  });
-}
-
-const selectProfile = (profile_id: string, state: any, setState: any) => {
-  setState({...state,
-    selectedProfile: profile_id,
-    selectedSavestate: "",
-    savestateList: state.profileList ? state.profileList[profile_id]["savestates"]:{},
-  });
-}
-
-const keys = (obj: any) => {
-  return Object.keys(Object(obj));
-}
 const values = (obj: any) => {
   return Object.values(Object(obj));
 }
 
-const isEmpty = (obj: any) => {
-  return keys(obj).length == 0
-}
+const openFilePicker = (
+  startPath: string,
+  includeFiles?: boolean,
+  filter?: FilePickerProps['filter'],
+  filePickerSettings?: {
+    validFileExtensions?: string[];
+    defaultHidden?: boolean;
+  },
+  serverApi?: ServerAPI
+): Promise<{ path: string; realpath: string }> => {
+  return new Promise((resolve, reject) => {
+    if (!serverApi) return reject('No server API');
+    const Content = ({ closeModal }: { closeModal?: () => void }) => (
+      <ModalRoot
+        onCancel={() => {
+          reject('User canceled');
+          closeModal?.();
+        }}
+      >
+        <FilePicker
+          serverApi={serverApi}
+          startPath={startPath}
+          includeFiles={includeFiles}
+          filter={filter}
+          onSubmit={resolve}
+          closeModal={closeModal}
+          {...filePickerSettings}
+        />
+      </ModalRoot>
+    );
+    showModal(<Content />);
+  });
+};
 
-const clearState = (setState: any) => {
-  return () => {
-    setState(defaultState);
-  }
-}
-
-export { selectGame, selectProfile, isEmpty, keys, values, clearState };
+export { values, openFilePicker };

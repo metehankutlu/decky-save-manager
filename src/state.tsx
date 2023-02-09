@@ -3,9 +3,7 @@ import { useState, useEffect } from "react";
 const defaultState = {
   gameList: {},
   selectedGame: "",
-  profileList: {},
   selectedProfile: "",
-  savestateList: {},
   selectedSavestate: ""
 }
 
