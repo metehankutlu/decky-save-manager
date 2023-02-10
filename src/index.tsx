@@ -7,7 +7,9 @@ import {
   ServerAPI,
   staticClasses,
   ButtonItem,
-  SidebarNavigation
+  SidebarNavigation,
+  showModal,
+  ConfirmModal
 } from "decky-frontend-lib";
 import { VFC } from "react";
 import useLocalStorageState from "./state";
@@ -28,7 +30,11 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
         state.selectedProfile, 
         state.selectedSavestate,
         state.gameList[state.selectedGame]["filePath"]
-      ), () => {});
+      ), () => {
+        showModal(
+          <ConfirmModal strTitle="Savestate is Loaded" bCancelDisabled={true} />, window
+        )
+      });
     }
   }
 
@@ -42,7 +48,13 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
             label: value["name"]
           }))}
           selectedOption={state.selectedGame}
-          onChange={(e) => setState({...state, selectedGame: e.data})} />
+          onChange={(e) => {
+            setState({...state, 
+              selectedGame: e.data, 
+              selectedProfile: state.selectedGame == e.data ? state.selectedProfile : "",
+              selectedSavestate: state.selectedGame == e.data ? state.selectedSavestate : ""
+            });
+          }} />
       </PanelSectionRow>
       <PanelSectionRow>
         <DropdownItem
@@ -53,7 +65,12 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
               label: value["name"]
             })):[]}
           selectedOption={state.selectedProfile}
-          onChange={(e) => setState({...state, selectedProfile: e.data})} />
+          onChange={(e) => {
+            setState({...state, 
+              selectedProfile: e.data,
+              selectedSavestate: state.selectedProfile == e.data ? state.selectedSavestate : ""
+            });
+          }} />
       </PanelSectionRow>
       <PanelSectionRow>
         <DropdownItem
@@ -66,17 +83,9 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
           selectedOption={state.selectedSavestate}
           onChange={(e) => setState({...state, selectedSavestate: e.data})} />
       </PanelSectionRow>
-      {/* <PanelSectionRow>
-        <ButtonItem onClick={() => {
-          // setState(defaultState);
-          console.log(state);
-        }}>
-          Clear state
-        </ButtonItem>
-      </PanelSectionRow> */}
       <PanelSectionRow>
         <ButtonItem layout="below" onClick={loadSavestate}>
-          Load Savestate
+          Load
         </ButtonItem>
       </PanelSectionRow>
       <PanelSectionRow>
@@ -84,7 +93,7 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
           Router.CloseSideMenus();
           Router.Navigate("/save-manager")
         }}>
-          Manage Savestates
+          Manage
         </ButtonItem>
       </PanelSectionRow>
     </PanelSection>
@@ -98,9 +107,9 @@ const SaveManagerRouter: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
       showTitle
       pages={[
         {
-          title: "Games",
-          content: <GamesPage serverAPI={serverAPI} />,
-          route: "/save-manager/games",
+          title: "Savestates",
+          content: <SavestatesPage serverAPI={serverAPI} />,
+          route: "/save-manager/savestates",
         },
         {
           title: "Profiles",
@@ -108,9 +117,9 @@ const SaveManagerRouter: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
           route: "/save-manager/profiles",
         },
         {
-          title: "Savestates",
-          content: <SavestatesPage serverAPI={serverAPI} />,
-          route: "/save-manager/savestates",
+          title: "Games",
+          content: <GamesPage serverAPI={serverAPI} />,
+          route: "/save-manager/games",
         },
         // {
         //   title: "Uninstall",
@@ -140,6 +149,7 @@ export default definePlugin((serverApi: ServerAPI) => {
         <Content serverAPI={serverApi} />
     ),
     icon: <FaShip />,
+    alwaysRender: true,
     onDismount() {
       serverApi.routerHook.removeRoute("/save-manager");
     },

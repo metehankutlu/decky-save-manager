@@ -93,7 +93,13 @@ const ProfilesPage: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
               label: value["name"]
             }))}
             selectedOption={state.selectedGame}
-            onChange={(e) => setState({...state, selectedGame: e.data})} />
+            onChange={(e) => {
+              setState({...state, 
+                selectedGame: e.data, 
+                selectedProfile: state.selectedGame == e.data ? state.selectedProfile : "",
+                selectedSavestate: state.selectedGame == e.data ? state.selectedSavestate : ""
+              });
+            }} />
       </PanelSectionRow>
       <PanelSectionRow>
         <ButtonItem onClick={showCreateModal}>

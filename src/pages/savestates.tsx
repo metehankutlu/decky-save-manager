@@ -95,7 +95,13 @@ const SavestatesPage: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
               label: value["name"]
             }))}
             selectedOption={state.selectedGame}
-            onChange={(e) => setState({...state, selectedGame: e.data, selectedProfile: "", selectedSavestate: ""})} />
+            onChange={(e) => {
+              setState({...state, 
+                selectedGame: e.data, 
+                selectedProfile: state.selectedGame == e.data ? state.selectedProfile : "",
+                selectedSavestate: state.selectedGame == e.data ? state.selectedSavestate : ""
+              });
+            }} />
       </PanelSectionRow>
       <PanelSectionRow>
         <DropdownItem
@@ -105,7 +111,12 @@ const SavestatesPage: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
               label: value["name"]
             })):[]}
             selectedOption={state.selectedProfile}
-            onChange={(e) => setState({...state, selectedProfile: e.data, selectedSavestate: ""})} />
+            onChange={(e) => {
+              setState({...state, 
+                selectedProfile: e.data,
+                selectedSavestate: state.selectedProfile == e.data ? state.selectedSavestate : ""
+              });
+            }} />
       </PanelSectionRow>
       <PanelSectionRow>
         <ButtonItem onClick={showCreateModal}>
@@ -131,9 +142,6 @@ const SavestatesPage: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
                             onClick={(e: MouseEvent) =>
                               showContextMenu(
                                 <Menu label="Savestate Actions">
-                                  <MenuItem onSelected={() => {setState({...state, selectedSavestate: savestate["id"]})}}>
-                                    Select
-                                  </MenuItem>
                                   <MenuItem onSelected={() => {showEditModal(savestate["id"], savestate["name"])}}>
                                     Edit
                                   </MenuItem>
