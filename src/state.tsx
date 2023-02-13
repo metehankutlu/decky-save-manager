@@ -9,20 +9,7 @@ const defaultState = {
 
 export default function useLocalStorageState(defaultValue = defaultState) {
   const [state, setState] = useState(() => {
-    const valueInLocalStorage = localStorage.getItem('state');
-    if (valueInLocalStorage) {
-      try
-      {
-        let value = JSON.parse(valueInLocalStorage);
-        return value;
-      }
-      catch(ex)
-      {
-        return null;
-      }
-    }
-
-    return defaultValue;
+    return getCurrentState() ?? defaultValue;
   });
 
   useEffect(() => {
@@ -32,4 +19,19 @@ export default function useLocalStorageState(defaultValue = defaultState) {
   return [state, setState];
 }
 
-export { defaultState };
+let getCurrentState = () => {
+  const valueInLocalStorage = localStorage.getItem('state');
+  if (valueInLocalStorage) {
+    try
+    {
+      let value = JSON.parse(valueInLocalStorage);
+      return value;
+    }
+    catch(ex)
+    {
+      return null;
+    }
+  }
+}
+
+export { defaultState, getCurrentState };

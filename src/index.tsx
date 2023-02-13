@@ -12,7 +12,7 @@ import {
   ConfirmModal
 } from "decky-frontend-lib";
 import { VFC } from "react";
-import useLocalStorageState from "./state";
+import useLocalStorageState, { getCurrentState } from "./state";
 import { values } from "./util";
 import { GamesPage, ProfilesPage, SavestatesPage } from "./pages";
 import { FaShip } from "react-icons/fa";
@@ -21,7 +21,7 @@ import * as backend from "./backend";
 const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
   backend.setServer(serverAPI);
 
-  const [state, setState] = useLocalStorageState();
+  let [state, setState] = useLocalStorageState();
 
   let loadSavestate = () => {
     if (state.selectedGame != "" && state.selectedProfile != "" && state.selectedSavestate != ""){
@@ -36,6 +36,11 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
         )
       });
     }
+  }
+
+  let onMenuWillOpen = (showMenu: () => void) => {
+    setState(getCurrentState());
+    showMenu();
   }
 
   return (
@@ -54,7 +59,8 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
               selectedProfile: state.selectedGame == e.data ? state.selectedProfile : "",
               selectedSavestate: state.selectedGame == e.data ? state.selectedSavestate : ""
             });
-          }} />
+          }}
+          onMenuWillOpen={onMenuWillOpen} />
       </PanelSectionRow>
       <PanelSectionRow>
         <DropdownItem
@@ -70,7 +76,8 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
               selectedProfile: e.data,
               selectedSavestate: state.selectedProfile == e.data ? state.selectedSavestate : ""
             });
-          }} />
+          }}
+          onMenuWillOpen={onMenuWillOpen} />
       </PanelSectionRow>
       <PanelSectionRow>
         <DropdownItem
@@ -81,7 +88,8 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
               label: value["name"]
             })):[]}
           selectedOption={state.selectedSavestate}
-          onChange={(e) => setState({...state, selectedSavestate: e.data})} />
+          onChange={(e) => setState({...state, selectedSavestate: e.data})}
+          onMenuWillOpen={onMenuWillOpen} />
       </PanelSectionRow>
       <PanelSectionRow>
         <ButtonItem layout="below" onClick={loadSavestate}>
