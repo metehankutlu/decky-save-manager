@@ -1,10 +1,10 @@
 {
   "name": "Save Manager",
-  "author": "John Doe",
+  "author": "Metehan Kutlu",
   "flags": ["debug", "_root"],
   "publish": {
-    "tags": ["template", "root", "dnu"],
-    "description": "Decky example plugin.",
-    "image": "https://opengraph.githubassets.com/1/SteamDeckHomebrew/PluginLoader"
+    "tags": ["save", "load", "savestate", "savemanager", "savefile"],
+    "description": "Save manager to store your save files and load them whenever you want.",
+    "image": "https://raw.githubusercontent.com/metehankutlu/decky-save-manager/main/assets/preview.jpg"
   }
 }
