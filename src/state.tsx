@@ -7,20 +7,22 @@ const defaultState = {
   selectedSavestate: ""
 }
 
+const stateKey = 'decky-save-manager-storage';
+
 export default function useLocalStorageState(defaultValue = defaultState) {
   const [state, setState] = useState(() => {
     return getCurrentState() ?? defaultValue;
   });
 
   useEffect(() => {
-    localStorage.setItem('state', JSON.stringify(state));
+    localStorage.setItem(stateKey, JSON.stringify(state));
   }, [state]);
 
   return [state, setState];
 }
 
 let getCurrentState = () => {
-  const valueInLocalStorage = localStorage.getItem('state');
+  const valueInLocalStorage = localStorage.getItem(stateKey);
   if (valueInLocalStorage) {
     try
     {
