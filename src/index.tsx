@@ -1,5 +1,4 @@
 import {
-  DropdownItem,
   definePlugin,
   PanelSection,
   PanelSectionRow,
@@ -9,87 +8,58 @@ import {
   ButtonItem,
   SidebarNavigation,
   showModal,
-  ConfirmModal
+  ConfirmModal,
 } from "decky-frontend-lib";
 import { VFC } from "react";
-import useLocalStorageState, { getCurrentState } from "./state";
-import { values } from "./util";
+import {
+  SaveManagerContextProvider,
+  SaveManagerState,
+  useSaveManagerState,
+} from "./state";
 import { GamesPage, ProfilesPage, SavestatesPage } from "./pages";
-import { FaShip } from "react-icons/fa";
+import { FaSave } from "react-icons/fa";
 import * as backend from "./backend";
+import { GameDropdown, ProfileDropdown, SavestateDropdown } from "./components";
 
-const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
+const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
   backend.setServer(serverAPI);
 
-  let [state, setState] = useLocalStorageState();
+  let state = useSaveManagerState();
 
   let loadSavestate = () => {
-    if (state.selectedGame != "" && state.selectedProfile != "" && state.selectedSavestate != ""){
-      backend.resolvePromise(backend.loadSavestate(
-        state.selectedGame, 
-        state.selectedProfile, 
-        state.selectedSavestate,
-        state.gameList[state.selectedGame]["filePath"]
-      ), () => {
-        showModal(
-          <ConfirmModal strTitle="Savestate is Loaded" bCancelDisabled={true} />, window
-        )
-      });
+    if (
+      state.selectedGame &&
+      state.selectedProfile &&
+      state.selectedSavestate
+    ) {
+      backend.resolvePromise(
+        backend.loadSavestate(state.selectedSavestate),
+        () => {
+          showModal(
+            <ConfirmModal
+              strTitle="Savestate is Loaded"
+              bCancelDisabled={true}
+              onOK={() => {
+                Router.CloseSideMenus();
+              }}
+            />,
+            window
+          );
+        }
+      );
     }
-  }
-
-  let onMenuWillOpen = (showMenu: () => void) => {
-    setState(getCurrentState());
-    showMenu();
-  }
+  };
 
   return (
     <PanelSection>
       <PanelSectionRow>
-        <DropdownItem
-          label="Game"
-          rgOptions={values(state.gameList).map((value: any) => ({
-            data: value["id"],
-            label: value["name"]
-          }))}
-          selectedOption={state.selectedGame}
-          onChange={(e) => {
-            setState({...state, 
-              selectedGame: e.data, 
-              selectedProfile: state.selectedGame == e.data ? state.selectedProfile : "",
-              selectedSavestate: state.selectedGame == e.data ? state.selectedSavestate : ""
-            });
-          }}
-          onMenuWillOpen={onMenuWillOpen} />
+        <GameDropdown state={state} />
       </PanelSectionRow>
       <PanelSectionRow>
-        <DropdownItem
-          label="Profile"
-          rgOptions={state.selectedGame != "" ?
-            values(state.gameList[state.selectedGame]["profiles"]).map((value: any) => ({
-              data: value["id"],
-              label: value["name"]
-            })):[]}
-          selectedOption={state.selectedProfile}
-          onChange={(e) => {
-            setState({...state, 
-              selectedProfile: e.data,
-              selectedSavestate: state.selectedProfile == e.data ? state.selectedSavestate : ""
-            });
-          }}
-          onMenuWillOpen={onMenuWillOpen} />
+        <ProfileDropdown state={state} />
       </PanelSectionRow>
       <PanelSectionRow>
-        <DropdownItem
-          label="Savestate"
-          rgOptions={state.selectedGame != "" && state.selectedProfile != "" ?
-            values(state.gameList[state.selectedGame]["profiles"][state.selectedProfile]["savestates"]).map((value: any) => ({
-              data: value["id"],
-              label: value["name"]
-            })):[]}
-          selectedOption={state.selectedSavestate}
-          onChange={(e) => setState({...state, selectedSavestate: e.data})}
-          onMenuWillOpen={onMenuWillOpen} />
+        <SavestateDropdown state={state} />
       </PanelSectionRow>
       <PanelSectionRow>
         <ButtonItem layout="below" onClick={loadSavestate}>
@@ -97,10 +67,13 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
         </ButtonItem>
       </PanelSectionRow>
       <PanelSectionRow>
-        <ButtonItem layout="below" onClick={() => {
-          Router.CloseSideMenus();
-          Router.Navigate("/save-manager")
-        }}>
+        <ButtonItem
+          layout="below"
+          onClick={() => {
+            Router.CloseSideMenus();
+            Router.Navigate("/save-manager");
+          }}
+        >
           Manage
         </ButtonItem>
       </PanelSectionRow>
@@ -108,7 +81,7 @@ const Content: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
   );
 };
 
-const SaveManagerRouter: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
+const SaveManagerRouter: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
   return (
     <SidebarNavigation
       title="Save Manager"
@@ -145,18 +118,23 @@ const SaveManagerRouter: VFC<{ serverAPI: ServerAPI}> = ({serverAPI}) => {
 };
 
 export default definePlugin((serverApi: ServerAPI) => {
+  const state = new SaveManagerState();
   serverApi.routerHook.addRoute("/save-manager", () => {
     return (
+      <SaveManagerContextProvider saveManagerStateClass={state}>
         <SaveManagerRouter serverAPI={serverApi} />
-    )
+      </SaveManagerContextProvider>
+    );
   });
 
   return {
-    title: <div className={staticClasses.Title}>Example Plugin</div>,
+    title: <div className={staticClasses.Title}>Save Manager</div>,
     content: (
+      <SaveManagerContextProvider saveManagerStateClass={state}>
         <Content serverAPI={serverApi} />
+      </SaveManagerContextProvider>
     ),
-    icon: <FaShip />,
+    icon: <FaSave />,
     alwaysRender: true,
     onDismount() {
       serverApi.routerHook.removeRoute("/save-manager");
