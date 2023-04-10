@@ -22,6 +22,13 @@ export function setServer(s: ServerAPI) {
   server = s;
 }
 
+export function getList(collection_name: string, condition: object | null  = null): Promise<any> {
+  return server!.callPluginMethod("get_list", {
+    collection_name: collection_name,
+    condition: condition
+  });
+}
+
 export function upsertGame(game: object): Promise<any> {
   return server!.callPluginMethod("upsert_game", {
     game: game,

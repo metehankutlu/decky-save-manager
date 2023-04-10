@@ -16,6 +16,9 @@ export interface PublicSaveManagerContext extends PublicSaveManagerState {
   deleteGame(game_id: string): void;
   deleteProfile(profile_id: string): void;
   deleteSavestate(savestate_id: string): void;
+  setGames(games: object): void;
+  setProfiles(profiles: object): void;
+  setSavestates(savestates: object): void;
   setSelectedGame(game_id: string): void;
   setSelectedProfile(profile_id: string): void;
   setSelectedSavestate(savestate_id: string): void;
@@ -69,6 +72,21 @@ export class SaveManagerState {
 
   deleteSavestate(savestate_id: string): void {
     delete this.savestates[savestate_id];
+    this.forceUpdate();
+  }
+
+  setGames(games: object): void {
+    this.games = games;
+    this.forceUpdate();
+  }
+
+  setProfiles(profiles: object): void {
+    this.profiles = profiles;
+    this.forceUpdate();
+  }
+
+  setSavestates(savestates: object): void {
+    this.savestates = savestates;
     this.forceUpdate();
   }
 
@@ -153,6 +171,18 @@ export const SaveManagerContextProvider: FC<ProviderProps> = ({
     saveManagerStateClass.deleteSavestate(savestate_id);
   };
 
+  const setGames = (games: object) => {
+    saveManagerStateClass.setGames(games);
+  }
+
+  const setProfiles = (profiles: object) => {
+    saveManagerStateClass.setProfiles(profiles);
+  }
+
+  const setSavestates = (savestates: object) => {
+    saveManagerStateClass.setSavestates(savestates);
+  }
+
   const setSelectedGame = (selectedGame: string | null) => {
     saveManagerStateClass.setSelectedGame(selectedGame);
   };
@@ -175,6 +205,9 @@ export const SaveManagerContextProvider: FC<ProviderProps> = ({
         deleteGame,
         deleteProfile,
         deleteSavestate,
+        setGames,
+        setProfiles,
+        setSavestates,
         setSelectedGame,
         setSelectedProfile,
         setSelectedSavestate,

@@ -53,13 +53,13 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
   return (
     <PanelSection>
       <PanelSectionRow>
-        <GameDropdown state={state} />
+        <GameDropdown state={state} serverAPI={serverAPI} />
       </PanelSectionRow>
       <PanelSectionRow>
-        <ProfileDropdown state={state} />
+        <ProfileDropdown state={state} serverAPI={serverAPI} />
       </PanelSectionRow>
       <PanelSectionRow>
-        <SavestateDropdown state={state} />
+        <SavestateDropdown state={state} serverAPI={serverAPI} />
       </PanelSectionRow>
       <PanelSectionRow>
         <ButtonItem layout="below" onClick={loadSavestate}>

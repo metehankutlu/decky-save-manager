@@ -80,7 +80,7 @@ const ProfilesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
   return (
     <PanelSection>
       <PanelSectionRow>
-        <GameDropdown state={state} />
+        <GameDropdown state={state} serverAPI={serverAPI} />
       </PanelSectionRow>
       <PanelSectionRow>
         <ButtonItem onClick={showCreateModal}>Create Profile</ButtonItem>

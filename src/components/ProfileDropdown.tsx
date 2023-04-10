@@ -1,15 +1,28 @@
-import { DropdownItem } from "decky-frontend-lib";
+import { DropdownItem, ServerAPI } from "decky-frontend-lib";
 import { PublicSaveManagerContext } from "../state";
 import { VFC } from "react";
 import { values } from "../util";
+import * as backend from "../backend";
 
-const ProfileDropdown: VFC<{ state: PublicSaveManagerContext }> = ({
-  state,
-}) => {
-  // let onMenuWillOpen = (showMenu: () => void) => {
-  //   setState(getCurrentState());
-  //   showMenu();
-  // }
+const ProfileDropdown: VFC<{
+  state: PublicSaveManagerContext;
+  serverAPI: ServerAPI;
+}> = ({ state, serverAPI }) => {
+  backend.setServer(serverAPI);
+  let onMenuWillOpen = (showMenu: () => void) => {
+    if (values(state.profiles).length == 0 && state.selectedGame) {
+      backend.resolvePromise(
+        backend.getList("profiles", {
+          key: "game_id",
+          value: state.selectedGame,
+        }),
+        (res: object) => {
+          state.setProfiles(res);
+        }
+      );
+    }
+    showMenu();
+  };
   return (
     <DropdownItem
       label="Profile"
@@ -25,7 +38,7 @@ const ProfileDropdown: VFC<{ state: PublicSaveManagerContext }> = ({
       onChange={(e) => {
         state.setSelectedProfile(e.data);
       }}
-      // onMenuWillOpen={onMenuWillOpen}
+      onMenuWillOpen={onMenuWillOpen}
     />
   );
 };

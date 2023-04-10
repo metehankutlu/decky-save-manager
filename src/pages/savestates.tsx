@@ -92,10 +92,10 @@ const SavestatesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
   return (
     <PanelSection>
       <PanelSectionRow>
-        <GameDropdown state={state} />
+        <GameDropdown state={state} serverAPI={serverAPI} />
       </PanelSectionRow>
       <PanelSectionRow>
-        <ProfileDropdown state={state} />
+        <ProfileDropdown state={state} serverAPI={serverAPI} />
       </PanelSectionRow>
       <PanelSectionRow>
         <ButtonItem onClick={showCreateModal}>Create Savestate</ButtonItem>
