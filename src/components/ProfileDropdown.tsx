@@ -10,7 +10,7 @@ const ProfileDropdown: VFC<{
 }> = ({ state, serverAPI }) => {
   backend.setServer(serverAPI);
   let onMenuWillOpen = (showMenu: () => void) => {
-    if (values(state.profiles).length == 0 && state.selectedGame) {
+    if (state.selectedGame) {
       backend.resolvePromise(
         backend.getList("profiles", {
           key: "game_id",

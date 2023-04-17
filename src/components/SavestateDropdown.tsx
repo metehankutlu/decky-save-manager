@@ -10,7 +10,7 @@ const SavestateDropdown: VFC<{
 }> = ({ state, serverAPI }) => {
   backend.setServer(serverAPI);
   let onMenuWillOpen = (showMenu: () => void) => {
-    if (values(state.savestates).length == 0 && state.selectedProfile) {
+    if (state.selectedProfile) {
       backend.resolvePromise(
         backend.getList("savestates", {
           key: "profile_id",

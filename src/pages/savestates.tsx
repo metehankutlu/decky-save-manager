@@ -9,7 +9,7 @@ import {
   showContextMenu,
   showModal,
 } from "decky-frontend-lib";
-import { VFC } from "react";
+import { VFC, useEffect } from "react";
 import { FaEllipsisH } from "react-icons/fa";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -25,6 +25,20 @@ import * as backend from "../backend";
 const SavestatesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
   backend.setServer(serverAPI);
   let state = useSaveManagerState();
+
+  useEffect(() => {
+    if (state.selectedProfile) {
+      backend.resolvePromise(
+        backend.getList("savestates", {
+          key: "profile_id",
+          value: state.selectedProfile,
+        }),
+        (res: object) => {
+          state.setSavestates(res);
+        }
+      );
+    }
+  }, []);
 
   let showCreateModal = () => {
     showModal(

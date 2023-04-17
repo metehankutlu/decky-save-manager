@@ -10,7 +10,7 @@ import {
   showContextMenu,
   showModal,
 } from "decky-frontend-lib";
-import { VFC } from "react";
+import { VFC, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { DeleteModal, UpsertModal } from "../components";
 import { openFilePicker, values } from "../util";
@@ -21,6 +21,12 @@ import { FaEllipsisH } from "react-icons/fa";
 const GamesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
   backend.setServer(serverAPI);
   let state = useSaveManagerState();
+
+  useEffect(() => {
+    backend.resolvePromise(backend.getList("games"), (res: object) => {
+      state.setGames(res);
+    });
+  }, []);
 
   let showAddModal = () => {
     showModal(

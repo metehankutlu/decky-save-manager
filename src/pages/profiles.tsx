@@ -9,7 +9,7 @@ import {
   showContextMenu,
   showModal,
 } from "decky-frontend-lib";
-import { VFC } from "react";
+import { VFC, useEffect } from "react";
 import { FaEllipsisH } from "react-icons/fa";
 import { v4 as uuidv4 } from "uuid";
 import { UpsertModal, DeleteModal, GameDropdown } from "../components";
@@ -20,6 +20,20 @@ import * as backend from "../backend";
 const ProfilesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
   backend.setServer(serverAPI);
   let state = useSaveManagerState();
+
+  useEffect(() => {
+    if (state.selectedGame) {
+      backend.resolvePromise(
+        backend.getList("profiles", {
+          key: "game_id",
+          value: state.selectedGame,
+        }),
+        (res: object) => {
+          state.setProfiles(res);
+        }
+      );
+    }
+  }, []);
 
   let showCreateModal = () => {
     showModal(

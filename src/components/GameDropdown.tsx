@@ -10,11 +10,9 @@ const GameDropdown: VFC<{
 }> = ({ state, serverAPI }) => {
   backend.setServer(serverAPI);
   let onMenuWillOpen = (showMenu: () => void) => {
-    if (values(state.games).length == 0) {
-      backend.resolvePromise(backend.getList("games"), (res: object) => {
-        state.setGames(res);
-      });
-    }
+    backend.resolvePromise(backend.getList("games"), (res: object) => {
+      state.setGames(res);
+    });
     showMenu();
   };
   return (
