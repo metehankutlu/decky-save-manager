@@ -40,6 +40,9 @@ const SavestatesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
       name: name,
       game_id: state.selectedGame,
       profile_id: state.selectedProfile,
+      path: state.selectedGame
+        ? state.games[state.selectedGame]["filePath"]
+        : "",
     };
     backend.resolvePromise(backend.upsertSavestate(savestate), () => {
       state.upsertSavestate(savestate);
@@ -102,8 +105,8 @@ const SavestatesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
       </PanelSectionRow>
       {
         <PanelSectionRow>
-          {state.selectedGame ? (
-            state.selectedProfile ? (
+          {state.selectedGame != null ? (
+            state.selectedProfile != null ? (
               <ul style={{ listStyleType: "none", padding: "1rem" }}>
                 {values(state.savestates).map((savestate: any) => {
                   return (

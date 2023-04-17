@@ -49,7 +49,7 @@ class Plugin:
         collection = settings.getSetting(collection_name, {})
 
         if condition is not None:
-            collection = [c for c in collection
+            collection = [c for c in collection.values()
                           if c[condition["key"]] == condition["value"]]
 
         return collection

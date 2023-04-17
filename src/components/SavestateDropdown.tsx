@@ -28,7 +28,7 @@ const SavestateDropdown: VFC<{
       label="Savestate"
       rgOptions={
         state.selectedGame && state.selectedProfile
-          ? values(state.profiles).map((value: any) => ({
+          ? values(state.savestates).map((value: any) => ({
               data: value["id"],
               label: value["name"],
             }))
