@@ -25,6 +25,12 @@ const GameDropdown: VFC<{
       selectedOption={state.selectedGame}
       onChange={(e) => {
         state.setSelectedGame(e.data);
+        backend.resolvePromise(backend.getList("profiles", {
+          key: "game_id",
+          value: state.selectedGame
+        }), (res: object) => {
+          state.setProfiles(res);
+        });
       }}
       onMenuWillOpen={onMenuWillOpen}
     />

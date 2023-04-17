@@ -37,6 +37,15 @@ const ProfileDropdown: VFC<{
       selectedOption={state.selectedProfile}
       onChange={(e) => {
         state.setSelectedProfile(e.data);
+        backend.resolvePromise(
+          backend.getList("savestates", {
+            key: "profile_id",
+            value: state.selectedProfile,
+          }),
+          (res: object) => {
+            state.setSavestates(res);
+          }
+        );
       }}
       onMenuWillOpen={onMenuWillOpen}
     />
