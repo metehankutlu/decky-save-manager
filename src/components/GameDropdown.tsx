@@ -27,7 +27,7 @@ const GameDropdown: VFC<{
         state.setSelectedGame(e.data);
         backend.resolvePromise(backend.getList("profiles", {
           key: "game_id",
-          value: state.selectedGame
+          value: e.data
         }), (res: object) => {
           state.setProfiles(res);
         });

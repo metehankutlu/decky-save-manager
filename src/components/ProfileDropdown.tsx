@@ -40,7 +40,7 @@ const ProfileDropdown: VFC<{
         backend.resolvePromise(
           backend.getList("savestates", {
             key: "profile_id",
-            value: state.selectedProfile,
+            value: e.data,
           }),
           (res: object) => {
             state.setSavestates(res);

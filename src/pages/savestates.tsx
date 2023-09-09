@@ -26,17 +26,21 @@ const SavestatesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
   backend.setServer(serverAPI);
   let state = useSaveManagerState();
 
+  let getList = () => {
+    backend.resolvePromise(
+      backend.getList("savestates", {
+        key: "profile_id",
+        value: state.selectedProfile,
+      }),
+      (res: object) => {
+        state.setSavestates(res);
+      }
+    );
+  };
+
   useEffect(() => {
     if (state.selectedProfile) {
-      backend.resolvePromise(
-        backend.getList("savestates", {
-          key: "profile_id",
-          value: state.selectedProfile,
-        }),
-        (res: object) => {
-          state.setSavestates(res);
-        }
-      );
+      getList();
     }
   }, []);
 
@@ -60,6 +64,7 @@ const SavestatesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
     };
     backend.resolvePromise(backend.upsertSavestate(savestate), () => {
       state.upsertSavestate(savestate);
+      getList();
     });
   };
 
@@ -83,12 +88,13 @@ const SavestatesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
   let showDeleteModal = (
     game_id: string,
     profile_id: string,
-    savestate_id: string
+    savestate_id: string,
+    name: string
   ) => {
     showModal(
       <DeleteModal
         title="Delete Savestate"
-        description={`Are you sure you want to delete savestate ${state.savestates[savestate_id]["name"]}?`}
+        description={`Are you sure you want to delete savestate ${name}?`}
         id={savestate_id}
         onConfirmClick={confirmDelete(game_id, profile_id)}
       />,
@@ -102,6 +108,7 @@ const SavestatesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
         backend.deleteSavestate(game_id, profile_id, savestate_id),
         () => {
           state.deleteSavestate(savestate_id);
+          getList();
         }
       );
     };
@@ -160,7 +167,8 @@ const SavestatesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
                                   showDeleteModal(
                                     savestate["game_id"],
                                     savestate["profile_id"],
-                                    savestate["id"]
+                                    savestate["id"],
+                                    savestate["name"]
                                   );
                                 }}
                               >

@@ -135,7 +135,6 @@ export default definePlugin((serverApi: ServerAPI) => {
       </SaveManagerContextProvider>
     ),
     icon: <FaSave />,
-    alwaysRender: true,
     onDismount() {
       serverApi.routerHook.removeRoute("/save-manager");
     },

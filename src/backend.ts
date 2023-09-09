@@ -5,10 +5,9 @@ var server: ServerAPI | undefined = undefined;
 export function resolvePromise(promise: Promise<any>, callback: any) {
   (async function () {
     let data = await promise;
-    console.log(data);
     if (data.success) {
       callback(data.result);
-    } else console.log("failed to call backend");
+    } else console.log("decky-save-manager: failed to call backend");
   })();
 }
 

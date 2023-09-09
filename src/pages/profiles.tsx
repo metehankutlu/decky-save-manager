@@ -21,17 +21,21 @@ const ProfilesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
   backend.setServer(serverAPI);
   let state = useSaveManagerState();
 
+  let getList = () => {
+    backend.resolvePromise(
+      backend.getList("profiles", {
+        key: "game_id",
+        value: state.selectedGame,
+      }),
+      (res: object) => {
+        state.setProfiles(res);
+      }
+    );
+  };
+
   useEffect(() => {
     if (state.selectedGame) {
-      backend.resolvePromise(
-        backend.getList("profiles", {
-          key: "game_id",
-          value: state.selectedGame,
-        }),
-        (res: object) => {
-          state.setProfiles(res);
-        }
-      );
+      getList();
     }
   }, []);
 
@@ -51,6 +55,7 @@ const ProfilesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
     };
     backend.resolvePromise(backend.upsertProfile(profile), () => {
       state.upsertProfile(profile);
+      getList();
     });
   };
 
@@ -71,11 +76,11 @@ const ProfilesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
     };
   };
 
-  let showDeleteModal = (game_id: string, profile_id: string) => {
+  let showDeleteModal = (game_id: string, profile_id: string, name: string) => {
     showModal(
       <DeleteModal
         title="Delete Profile"
-        description={`Are you sure you want to delete profile ${state.profiles[profile_id]["name"]}?`}
+        description={`Are you sure you want to delete profile ${name}?`}
         id={profile_id}
         onConfirmClick={confirmDelete(game_id)}
       />,
@@ -87,6 +92,7 @@ const ProfilesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
     return (profile_id: string) => {
       backend.resolvePromise(backend.deleteProfile(game_id, profile_id), () => {
         state.deleteGame(game_id);
+        getList();
       });
     };
   };
@@ -136,7 +142,8 @@ const ProfilesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
                             onSelected={() => {
                               showDeleteModal(
                                 profile["game_id"],
-                                profile["id"]
+                                profile["id"],
+                                profile["name"]
                               );
                             }}
                           >

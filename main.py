@@ -36,12 +36,15 @@ def save_setting(collection_name: str, value: dict):
     settings.commit()
 
 
-def delete_setting(collection_name: str, id: str):
+def delete_setting(collection_name: str, condition: dict):
     collection = settings.getSetting(collection_name, {})
-    if id in collection.keys():
-        del collection[id]
-        settings.setSetting(collection_name, collection)
-        settings.commit()
+    to_delete = [c for c in collection.values()
+                 if c[condition["key"]] == condition["value"]]
+    for t in to_delete:
+        if t["id"] in collection.keys():
+            del collection[t["id"]]
+            settings.setSetting(collection_name, collection)
+            settings.commit()
 
 
 class Plugin:
@@ -62,7 +65,8 @@ class Plugin:
             ROOT_FOLDER,
             game["id"],
         )
-        os.makedirs(folder_path)
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
 
         save_setting("games", game)
 
@@ -90,7 +94,8 @@ class Plugin:
             savestate["profile_id"],
             savestate["id"]
         )
-        os.makedirs(folder_path)
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
 
         _, tail = os.path.split(savestate["path"])
 
@@ -123,7 +128,18 @@ class Plugin:
         if os.path.exists(folder_path):
             shutil.rmtree(folder_path)
 
-        delete_setting("games", game_id)
+        delete_setting("games", {
+            "key": "id",
+            "value": game_id
+        })
+        delete_setting("profiles", {
+            "key": "game_id",
+            "value": game_id
+        })
+        delete_setting("savestates", {
+            "key": "game_id",
+            "value": game_id
+        })
 
     async def delete_profile(self,
                              game_id: str,
@@ -134,7 +150,14 @@ class Plugin:
         if os.path.exists(folder_path):
             shutil.rmtree(folder_path)
 
-        delete_setting("profiles", profile_id)
+        delete_setting("profiles", {
+            "key": "id",
+            "value": profile_id
+        })
+        delete_setting("savestates", {
+            "key": "profile_id",
+            "value": profile_id
+        })
 
     async def delete_savestate(self,
                                game_id: str,
@@ -146,7 +169,10 @@ class Plugin:
         if os.path.exists(folder_path):
             shutil.rmtree(folder_path)
 
-        delete_setting("savestates", savestate_id)
+        delete_setting("savestates", {
+            "key": "id",
+            "value": savestate_id
+        })
 
     async def filepicker_new(self, path, include_files=True):
         path = Path(path).resolve()

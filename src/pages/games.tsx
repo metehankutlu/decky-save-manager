@@ -22,10 +22,14 @@ const GamesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
   backend.setServer(serverAPI);
   let state = useSaveManagerState();
 
-  useEffect(() => {
+  let getList = () => {
     backend.resolvePromise(backend.getList("games"), (res: object) => {
       state.setGames(res);
     });
+  };
+
+  useEffect(() => {
+    getList();
   }, []);
 
   let showAddModal = () => {
@@ -49,6 +53,7 @@ const GamesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
     };
     backend.resolvePromise(backend.upsertGame(game), () => {
       state.upsertGame(game);
+      getList();
     });
   };
 
@@ -71,11 +76,11 @@ const GamesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
     };
   };
 
-  let showDeleteModal = (game_id: string) => {
+  let showDeleteModal = (game_id: string, name: string) => {
     showModal(
       <DeleteModal
         title="Delete Game"
-        description={`Are you sure you want to delete game ${state.games[game_id]["name"]}?`}
+        description={`Are you sure you want to delete game ${name}?`}
         id={game_id}
         onConfirmClick={confirmDelete}
       />,
@@ -86,6 +91,7 @@ const GamesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
   let confirmDelete = (game_id: string) => {
     backend.resolvePromise(backend.deleteGame(game_id), () => {
       state.deleteGame(game_id);
+      getList();
     });
   };
 
@@ -95,7 +101,7 @@ const GamesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
         <ButtonItem layout="below" onClick={showAddModal}>
           Add Game
         </ButtonItem>
-        {Router.MainRunningApp && (
+        {Router.MainRunningApp && !Object.keys(state.games).find(id => id == Router.MainRunningApp?.appid.toString()) && (
           <ButtonItem
             layout="below"
             onClick={() => {
@@ -157,7 +163,7 @@ const GamesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
                         </MenuItem>
                         <MenuItem
                           onSelected={() => {
-                            showDeleteModal(game["id"]);
+                            showDeleteModal(game["id"], game["name"]);
                           }}
                         >
                           Delete
