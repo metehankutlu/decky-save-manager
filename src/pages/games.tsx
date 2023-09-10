@@ -106,7 +106,7 @@ const GamesPage: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
             layout="below"
             onClick={() => {
               openFilePicker(
-                "/home/deck/.local/share/Steam/steamapps/compatdata/570940/pfx/drive_c/users/steamuser/Documents/NBGI/DARK SOULS REMASTERED/",
+                "/home/deck/.local/share/Steam/steamapps/compatdata/",
                 undefined,
                 undefined,
                 undefined,
