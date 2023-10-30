@@ -49,6 +49,29 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
       );
     }
   };
+  let saveSavestate = () => {
+    if (
+      state.selectedGame &&
+      state.selectedProfile &&
+      state.selectedSavestate
+    ) {
+      backend.resolvePromise(
+        backend.saveSavestate(state.selectedSavestate),
+        () => {
+          showModal(
+            <ConfirmModal
+              strTitle="Savestate is Saved"
+              bCancelDisabled={true}
+              onOK={() => {
+                Router.CloseSideMenus();
+              }}
+            />,
+            window
+          );
+        }
+      );
+    }
+  };
 
   return (
     <PanelSection>
@@ -64,6 +87,11 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
       <PanelSectionRow>
         <ButtonItem layout="below" onClick={loadSavestate}>
           Load
+        </ButtonItem>
+      </PanelSectionRow>
+      <PanelSectionRow>
+        <ButtonItem layout="below" onClick={saveSavestate}>
+          Save
         </ButtonItem>
       </PanelSectionRow>
       <PanelSectionRow>
