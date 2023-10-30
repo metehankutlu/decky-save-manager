@@ -52,6 +52,12 @@ export function loadSavestate(savestate_id: string): Promise<any> {
   });
 }
 
+export function saveSavestate(savestate_id: string): Promise<any> {
+  return server!.callPluginMethod("save_savestate", {
+    savestate_id: savestate_id.toString(),
+  });
+}
+
 export function deleteGame(game_id: string): Promise<any> {
   return server!.callPluginMethod("delete_game", {
     game_id: game_id.toString(),
