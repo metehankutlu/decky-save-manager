@@ -104,8 +104,25 @@ class Plugin:
         shutil.copyfile(savestate["path"], dst_file)
 
         save_setting("savestates", savestate)
+      
+  async def save_savestate(self, savestate_id: str):
+        savestates = settings.getSetting("savestates", {})
+        savestate = savestates[savestate_id]
 
-    async def load_savestate(self, savestate_id: str):
+        folder_path = os.path.join(
+            ROOT_FOLDER,
+            savestate["game_id"],
+            savestate["profile_id"],
+            savestate_id
+        )
+
+        _, tail = os.path.split(savestate["path"])
+
+        dst_file = os.path.join(folder_path, tail)
+
+        shutil.copyfile(savestate["path"], dst_file)
+
+  async def load_savestate(self, savestate_id: str):
         savestates = settings.getSetting("savestates", {})
         savestate = savestates[savestate_id]
 
