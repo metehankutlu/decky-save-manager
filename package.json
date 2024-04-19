@@ -1,6 +1,6 @@
 {
   "name": "decky-save-manager",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Steam Deck save manager plugin to store your save files and load them whenever you want.",
   "scripts": {
     "build": "shx rm -rf dist && rollup -c",
